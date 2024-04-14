@@ -1,0 +1,158 @@
+
+using System.Text;
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+        try
+        {
+            plane plane1 = new plane("plane", 10, 1);
+            for (int i = 0; i < 11; i++)
+            {
+                passenger newPassenger = new passenger($"Пасажир {i + 1}", i + 1);
+                plane1.addPassenger(newPassenger);
+            }
+            plane1.rise();
+        }
+        catch (KilkistException ex)
+        {
+            Console.WriteLine($"Помилка: {ex.Message}");
+        }
+        catch (SmugaRozgonuException ex)
+        {
+            Console.WriteLine($"Помилка: {ex.Message}");
+        }
+    }
+}
+class KilkistException : Exception
+{
+    public KilkistException() { }
+
+    public KilkistException(string message) : base(message) { }
+
+    public KilkistException(string message, Exception innerException)
+        : base(message, innerException) { }
+}
+class SmugaRozgonuException : Exception
+{
+    public SmugaRozgonuException() { }
+
+    public SmugaRozgonuException(string message) : base(message) { }
+
+    public SmugaRozgonuException(string message, Exception innerException)
+        : base(message, innerException) { }
+}
+class airport
+{
+    private string name { get; set; }
+    public airport(string name)
+    {
+        this.name = name;
+    }
+    public string GetName()
+    {
+        return name;
+    }
+}
+class aircraft
+{
+    protected string name { get; set; }
+    protected int maxPassages { get; set; }
+    protected List<passenger> passengers { get; set; }
+    public aircraft(string name, int maxPassages)
+    {
+        this.name = name;
+        this.maxPassages = maxPassages;
+        this.passengers = new List<passenger>();
+    }
+    public virtual void rise()
+    { }
+    public virtual void addPassenger(passenger p)
+    {
+        try
+        {
+            if (passengers.Count < maxPassages)
+            {
+                passengers.Add(p);
+                Console.WriteLine($"Пасажир з іменем " + p.GetFullName() + " доданий на місця під номером " + p.GetNom() + ".");
+            }
+            else
+            {
+                throw new KilkistException("Перевищено максимальну кількість пасажирів.");
+            }
+        }
+        catch (KilkistException ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+    }
+}
+class plane : aircraft
+{
+    private double lenght { get; set; }
+    public plane(string name, int maxPassages,  double lenght) : base(name, maxPassages)
+    {
+        try
+        {
+            if (lenght <= 0)
+                throw new SmugaRozgonuException($"Неможливо створити літак - вказана неправильна довжина смуги розгону: {lenght}");
+            else
+                this.lenght = lenght;
+        }
+        catch (SmugaRozgonuException ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+    }
+    public override void rise()
+    {
+        try
+        {
+            Console.WriteLine("Літак взлетів");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Виникла помилка: {ex.Message}");
+        }
+    }
+}
+class helicopter : aircraft
+{
+    public helicopter(string name, int maxPassages)
+        : base(name, maxPassages)
+    {
+    }
+    public override void rise()
+    {
+        try
+        {
+            Console.WriteLine("Гелікоптер взлетів.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Виникла помилка: {ex.Message}");
+        }
+    }
+}
+class passenger
+{
+    private string fullName { get; set; }
+    private int nom { get; set; }
+    public passenger(string fullName, int nom)
+    {
+        this.fullName = fullName;
+        this.nom = nom;
+    }
+    public string GetFullName()
+    {
+        return fullName;
+    }
+
+    public int GetNom()
+    {
+        return nom;
+    }
+}
